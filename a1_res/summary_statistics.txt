@@ -1,0 +1,45 @@
+Dataset Summary Statistics
+=======================
+
+Total Samples: 2149
+Total Features: 32
+
+Class Distribution:
+Diagnosis
+0    1389
+1     760
+
+Missing Values:
+Age                          0
+Gender                       0
+Ethnicity                    0
+EducationLevel               0
+BMI                          0
+Smoking                      0
+AlcoholConsumption           0
+PhysicalActivity             0
+DietQuality                  0
+SleepQuality                 0
+FamilyHistoryAlzheimers      0
+CardiovascularDisease        0
+Diabetes                     0
+Depression                   0
+HeadInjury                   0
+Hypertension                 0
+SystolicBP                   0
+DiastolicBP                  0
+CholesterolTotal             0
+CholesterolLDL               0
+CholesterolHDL               0
+CholesterolTriglycerides     0
+MMSE                         0
+FunctionalAssessment         0
+MemoryComplaints             0
+BehavioralProblems           0
+ADL                          0
+Confusion                    0
+Disorientation               0
+PersonalityChanges           0
+DifficultyCompletingTasks    0
+Forgetfulness                0
+Diagnosis                    0
