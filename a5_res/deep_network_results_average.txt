@@ -1,0 +1,11 @@
+Deep Neural Network Results with L1 Regularization - Average Across Folds
+--------------------------------------------
+
+Average Results Across Folds:
+               fold  reg_factor  ce_loss     mse  accuracy
+architecture                                              
+[128, 64, 32]   2.0       0.001  13.9601  0.1396    0.8604
+[32, 32, 32]    2.0       0.001  13.8675  0.1387    0.8613
+[32, 64, 128]   2.0       0.001  13.5872  0.1359    0.8641
+[64, 32, 64]    2.0       0.001  13.9610  0.1396    0.8604
+[64, 32]        2.0       0.001  14.1929  0.1419    0.8581
