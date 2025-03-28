@@ -3,9 +3,41 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
-import seaborn as sns
 import os
+
+class DeepAlzheimerNet(nn.Module):
+    def __init__(self, input_size, hidden_sizes, activation_fn='relu'):
+        super(DeepAlzheimerNet, self).__init__()
+
+        # Create list to hold all layers
+        layers = []
+
+        # Input layer to first hidden layer
+        prev_size = input_size
+
+        # Add hidden layers
+        for hidden_size in hidden_sizes:
+            layers.append(nn.Linear(prev_size, hidden_size))
+
+            # Add activation function
+            if activation_fn == 'relu':
+                layers.append(nn.ReLU())
+            elif activation_fn == 'tanh':
+                layers.append(nn.Tanh())
+            elif activation_fn == 'silu':
+                layers.append(nn.SiLU())
+
+            prev_size = hidden_size
+
+        # Add output layer
+        layers.append(nn.Linear(prev_size, 1))
+        layers.append(nn.Sigmoid())
+
+        # Create sequential model
+        self.model = nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.model(x)
 
 class AlzheimerNet(nn.Module):
     def __init__(self, input_size, hidden_size, activation_fn='relu'):
@@ -66,7 +98,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, epochs=10
             patience_counter += 1
 
         if patience_counter >= early_stop_patience:
-            print(f'Early stopping at epoch {epoch}')
+            if __debug__:
+                print(f'Early stopping at epoch {epoch}')
             break
 
     return train_losses, val_losses
@@ -92,18 +125,12 @@ def evaluate_model(model, test_loader):
         'accuracy': accuracy_score(actuals, predictions)
     }
 
-def plot_training_curves(train_losses, val_losses, title):
-    sns.set_style("whitegrid")
-    sns.set_palette("husl")
-    plt.figure(figsize=(12, 7))
-    plt.plot(train_losses, linewidth=2, label='Training Loss')
-    plt.plot(val_losses, linewidth=2, label='Validation Loss')
-    plt.title(title, fontsize=14, pad=20)
-    plt.xlabel('Epoch', fontsize=12)
-    plt.ylabel('Loss', fontsize=12)
-    plt.legend(fontsize=10)
-    plt.tight_layout()
-    if not os.path.exists('./a2_res'):
-        os.makedirs('./a2_res')
-    plt.savefig(f'./a2_res/{title}.png', dpi=200, bbox_inches='tight')
-    plt.close()
+def save_model_weights(model, folder, filename):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    path = os.path.join(folder, filename)
+    torch.save(model.state_dict(), path)
+
+def load_model_weights(model, weights_path):
+    model.load_state_dict(torch.load(weights_path))
+    return model
