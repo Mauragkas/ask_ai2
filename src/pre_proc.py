@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import pandas as pd
 import numpy as np
 import os
@@ -72,9 +73,9 @@ def prepare_data(df):
     return X, y
 
 # 5. Implement cross-validation
-def implement_cross_validation(X, y, preprocessor):
+def implement_cross_validation(X, y, preprocessor, random_state=None):
     # Initialize StratifiedKFold
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
 
     # Store fold indices
     fold_indices = []
@@ -119,7 +120,7 @@ def implement_cross_validation(X, y, preprocessor):
 # Main execution
 def main():
     # Load data
-    df = load_data('alzheimers_disease_data.csv')
+    df = load_data('./data/alzheimers_disease_data.csv')
 
     # Identify feature types
     categorical_features, numerical_features, binary_features = identify_feature_types(df)
@@ -131,7 +132,7 @@ def main():
     X, y = prepare_data(df)
 
     # Implement cross-validation
-    fold_indices = implement_cross_validation(X, y, preprocessor)
+    fold_indices = implement_cross_validation(X, y, preprocessor, random_state=(os.getenv('PRE_PROC_SEED', 420)))
 
     # Print some information about the processed data
     print("Data Overview:")
