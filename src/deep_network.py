@@ -156,12 +156,13 @@ def run_deep_experiments():
                 **metrics
             })
 
-            # plot_training_curves(
-            #     train_losses,
-            #     val_losses,
-            #     title=f'Deep Network Training (arch={hidden_sizes}, L1={reg_factor})',
-            #     folder='a5_res'
-            # )
+            plot_training_curves(
+                train_losses,
+                val_losses,
+                title=f'Training_Curves_arch{"_".join(map(str, hidden_sizes))}',
+                fold=fold,
+                folder='a5_res'
+            )
 
     # Aggregate and display results
     results_df = pd.DataFrame(results)

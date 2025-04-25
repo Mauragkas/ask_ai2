@@ -91,7 +91,12 @@ def run_experiments():
                     **metrics
                 })
 
-                # plot_training_curves(train_losses, val_losses, title=f'Training Curves (h={hidden_size:02d}, act={activation})')
+                plot_training_curves(
+                    train_losses,
+                    val_losses,
+                    title=f'Training_Curves_h{hidden_size:02d}_act{activation}',
+                    fold=fold
+                )
 
     # Aggregate and display results
     results_df = pd.DataFrame(results)
