@@ -5,7 +5,7 @@ matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_training_curves(train_losses, val_losses, title, fold=None, folder='a2_res'):
+def plot_training_curves(train_losses, val_losses, title, folder='a2_res'):
     sns.set_style("whitegrid")
     sns.set_palette("husl")
     plt.figure(figsize=(12, 7))
@@ -17,26 +17,9 @@ def plot_training_curves(train_losses, val_losses, title, fold=None, folder='a2_
     plt.ylim(bottom=0)
     plt.legend(fontsize=10)
     plt.tight_layout()
-
-    # Create folder if it doesn't exist
     if not os.path.exists(f'./{folder}'):
         os.makedirs(f'./{folder}')
-
-    # Create training_curves subfolder
-    curves_folder = f'./{folder}/training_curves'
-    if not os.path.exists(curves_folder):
-        os.makedirs(curves_folder)
-
-    # Add fold number to filename if provided
-    if fold is not None:
-        filename = f'{curves_folder}/fold{fold}_{title}.png'
-    else:
-        filename = f'{curves_folder}/{title}.png'
-
-    # Remove any invalid characters from filename
-    filename = filename.replace(" ", "_").replace("(", "").replace(")", "")
-
-    plt.savefig(filename, dpi=200, bbox_inches='tight')
+    plt.savefig(f'./{folder}/{title}.png', dpi=200, bbox_inches='tight')
     plt.close()
 
 def plot_results(results_df, folder='a2_res'):

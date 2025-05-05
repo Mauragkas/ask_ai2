@@ -172,13 +172,12 @@ def run_regularization_experiments():
                     **metrics
                 })
 
-                plot_training_curves(
-                    train_losses,
-                    val_losses,
-                    title=f'Training_Curves_{reg_type}_factor{reg_factor}',
-                    fold=fold,
-                    folder='a4_res'
-                )
+                # plot_training_curves(
+                #     train_losses,
+                #     val_losses,
+                #     title=f'Training Curves ({reg_type.upper()}={reg_factor})',
+                #     folder='a4_res'
+                # )
 
     # Aggregate and display results
     results_df = pd.DataFrame(results)

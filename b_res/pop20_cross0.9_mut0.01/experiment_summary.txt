@@ -1,0 +1,18 @@
+GA Feature Selection Experiment Summary
+====================================
+
+Parameters:
+- Population Size: 20
+- Crossover Probability: 0.9
+- Mutation Probability: 0.01
+- Maximum Generations: 300
+- Number of Trials: 3
+
+Results (averaged over 3 trials):
+- Average Best Fitness: 0.7834
+- Average Number of Selected Features: 12.00
+
+Individual Trial Results:
+Trial 1: Fitness=0.7836, Selected Features=12
+Trial 2: Fitness=0.7864, Selected Features=11
+Trial 3: Fitness=0.7802, Selected Features=13

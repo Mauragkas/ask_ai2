@@ -1,0 +1,29 @@
+# Selective Feature Neural Network
+
+## Model Configuration
+- Hidden layer size: 16
+- Activation function: ReLU
+
+## Selected Features
+- EducationLevel
+- Depression
+- MMSE
+- FunctionalAssessment
+- MemoryComplaints
+- BehavioralProblems
+- ADL
+- Confusion
+
+## Average Results Across Folds
+fold         2.0000
+ce_loss     12.7035
+mse          0.1270
+accuracy     0.8730
+
+## Per-Fold Results
+   fold    ce_loss       mse  accuracy
+0     0  16.279070  0.162791  0.837209
+1     1  11.395349  0.113953  0.886047
+2     2  10.000000  0.100000  0.900000
+3     3  13.255814  0.132558  0.867442
+4     4  12.587413  0.125874  0.874126

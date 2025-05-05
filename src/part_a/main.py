@@ -1,6 +1,7 @@
 import torch
 import pandas as pd
 import numpy as np
+from tqdm import tqdm  # Add this import at the top of the file
 from model import AlzheimerNet, DeepAlzheimerNet
 from pre_proc import identify_feature_types, create_preprocessing_pipeline
 from sklearn.compose import ColumnTransformer
@@ -132,7 +133,12 @@ def main():
             'deep': []
         }
 
-        for _, row in sample_rows.iterrows():
+        # Add progress bar for patient evaluation
+        for _, row in tqdm(sample_rows.iterrows(),
+                         total=len(sample_rows),
+                         desc="Patient evaluation",
+                         leave=True,
+                         ncols=100):
             # Prepare input
             input_data = row.to_dict()
             input_tensor = prepare_single_input(input_data, preprocessor)

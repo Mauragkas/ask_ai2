@@ -1,0 +1,22 @@
+GA Methods Experiment Summary
+===========================
+
+Methods:
+- Selection Method: tournament
+- Crossover Method: two_point
+
+Parameters:
+- Population Size: 200
+- Crossover Probability: 0.9
+- Mutation Probability: 0.01
+- Maximum Generations: 300
+- Number of Trials: 3
+
+Results (averaged over 3 trials):
+- Average Best Fitness: 0.7939
+- Average Number of Selected Features: 7.67
+
+Individual Trial Results:
+Trial 1: Fitness=0.7940, Selected Features=9
+Trial 2: Fitness=0.7925, Selected Features=8
+Trial 3: Fitness=0.7951, Selected Features=6

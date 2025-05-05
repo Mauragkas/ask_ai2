@@ -149,13 +149,12 @@ def run_momentum_experiments():
                 **metrics
             })
 
-            plot_training_curves(
-                train_losses,
-                val_losses,
-                title=f'Training_Curves_m{config["momentum"]}_lr{config["lr"]}',
-                fold=fold,
-                folder='a3_res'
-            )
+            # plot_training_curves(
+            #     train_losses,
+            #     val_losses,
+            #     title=f'Training Curves (m={config["momentum"]}, lr={config["lr"]})',
+            #     folder='a3_res'
+            # )
 
     # Aggregate and display results
     results_df = pd.DataFrame(results)
