@@ -10,9 +10,7 @@ import seaborn as sns
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from part_a.model import AlzheimerNet, train_model, evaluate_model, save_model_weights
-from part_a.pre_proc import identify_feature_types, create_preprocessing_pipeline
 from part_a.plotting import plot_training_curves
-from sklearn.model_selection import StratifiedKFold
 import gc
 from dotenv import load_dotenv
 
@@ -71,8 +69,9 @@ def train_selective_feature_model():
     # Set batch size
     batch_size = int(os.getenv('BATCH_SIZE', 256))
 
-    # Selected features
-    selected_features = [
+    # Define the features you're interested in
+    # Note: These will need to match the column names in preprocessed data
+    selected_features_patterns = [
         'EducationLevel',
         'Depression',
         'MMSE',
@@ -83,49 +82,36 @@ def train_selective_feature_model():
         'Confusion'
     ]
 
-    # Load the original dataset
-    df = pd.read_csv('./data/alzheimers_disease_data.csv')
-
-    # Select only the specified features + target variable
-    features_df = df[selected_features + ['Diagnosis', 'PatientID', 'DoctorInCharge']]
-
-    # Identify feature types for the selected features
-    cat_features, num_features, bin_features = identify_feature_types(features_df)
-
-    # Create preprocessing pipeline
-    preprocessor = create_preprocessing_pipeline(cat_features, num_features, bin_features)
-
-    # Prepare data - drop ID columns
-    features_cleaned = features_df.drop(['PatientID', 'DoctorInCharge'], axis=1)
-    X = features_cleaned.drop('Diagnosis', axis=1)
-    y = features_cleaned['Diagnosis']
-
-    # Results storage
     results = []
 
     # Create output directories
     os.makedirs('b_res/model_weights', exist_ok=True)
     os.makedirs('b_res/plots', exist_ok=True)
 
-    # Cross-validation
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+    # For each fold
+    for fold in range(5):
+        # Load preprocessed data (like in Part A)
+        X_train = pd.read_csv(f'data/X_train_fold_{fold}.csv')
+        X_val = pd.read_csv(f'data/X_val_fold_{fold}.csv')
+        y_train = pd.read_csv(f'data/y_train_fold_{fold}.csv')
+        y_val = pd.read_csv(f'data/y_val_fold_{fold}.csv')
 
-    for fold, (train_idx, val_idx) in enumerate(skf.split(X, y)):
-        # Get training and validation sets
-        X_train_fold = X.iloc[train_idx]
-        X_val_fold = X.iloc[val_idx]
-        y_train_fold = y.iloc[train_idx]
-        y_val_fold = y.iloc[val_idx]
+        # Filter columns to keep only those containing our target features
+        # This handles transformed feature names (e.g., one-hot encoded columns)
+        selected_cols = []
+        for pattern in selected_features_patterns:
+            matched_cols = [col for col in X_train.columns if pattern in col]
+            selected_cols.extend(matched_cols)
 
-        # Fit and transform training data
-        X_train_transformed = preprocessor.fit_transform(X_train_fold)
-        X_val_transformed = preprocessor.transform(X_val_fold)
+        # Keep only the selected columns
+        X_train_selected = X_train[selected_cols]
+        X_val_selected = X_val[selected_cols]
 
-        # Convert to PyTorch tensors
-        X_train_tensor = torch.FloatTensor(X_train_transformed).to(device)
-        X_val_tensor = torch.FloatTensor(X_val_transformed).to(device)
-        y_train_tensor = torch.FloatTensor(y_train_fold.values.reshape(-1, 1)).to(device)
-        y_val_tensor = torch.FloatTensor(y_val_fold.values.reshape(-1, 1)).to(device)
+        # Convert to PyTorch tensors and continue as before
+        X_train_tensor = torch.FloatTensor(X_train_selected.values).to(device)
+        X_val_tensor = torch.FloatTensor(X_val_selected.values).to(device)
+        y_train_tensor = torch.FloatTensor(y_train.values).to(device)
+        y_val_tensor = torch.FloatTensor(y_val.values).to(device)
 
         # Create datasets and dataloaders
         train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
@@ -138,7 +124,7 @@ def train_selective_feature_model():
         val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
         # Get input size
-        input_size = X_train_transformed.shape[1]
+        input_size = X_train_selected.shape[1]
 
         # Set hidden layer size to 16 as requested
         hidden_size = 16
@@ -175,8 +161,8 @@ def train_selective_feature_model():
             folder='b_res/plots'
         )
 
-        # Get feature names after preprocessing
-        feature_names = preprocessor.get_feature_names_out()
+        # For feature importance, use the filtered column names
+        feature_names = selected_cols
 
         # Plot feature importance
         plot_feature_importance(
@@ -214,8 +200,8 @@ def train_selective_feature_model():
         f.write("- Activation function: ReLU\n\n")
 
         f.write("## Selected Features\n")
-        for feature in selected_features:
-            f.write(f"- {feature}\n")
+        for pattern in selected_features_patterns:
+            f.write(f"- {pattern}\n")
 
         f.write("\n## Average Results Across Folds\n")
         f.write(avg_results.to_string())
@@ -223,11 +209,11 @@ def train_selective_feature_model():
         f.write("\n\n## Per-Fold Results\n")
         f.write(results_df.to_string())
 
-    return results_df, preprocessor, selected_features
+    return results_df, selected_cols, selected_features_patterns
 
 if __name__ == "__main__":
     try:
-        results, preprocessor, features = train_selective_feature_model()
+        results, selected_cols, features = train_selective_feature_model()
         print("\nTraining completed successfully!")
     except KeyboardInterrupt:
         print("Training interrupted by user")
