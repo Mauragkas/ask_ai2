@@ -8,10 +8,13 @@ from sklearn.pipeline import Pipeline
 import random
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import gc
 from dotenv import load_dotenv
 import json
+import torch
 
 load_dotenv()
 
@@ -29,11 +32,15 @@ class GeneticFeatureSelector:
         if estimator is not None:
             self.estimator = estimator
         else:
-            # Create a pipeline with scaling and increased max_iter
-            self.estimator = Pipeline([
-                ('scaler', StandardScaler()),
-                ('classifier', LogisticRegression(max_iter=10000, solver='liblinear'))
-            ])
+            # Import AlzheimerNet from part_a
+            from part_a.model import AlzheimerNet
+            # We'll create the neural network during evaluation since the input size will change
+            self.estimator = None  # Will be created per chromosome in _evaluate_fitness
+
+        # Store batch size and device for neural network training
+        self.batch_size = int(os.getenv('BATCH_SIZE', 256))
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.random_state = random_state
 
         self.cv = cv
         self.population_size = population_size
@@ -50,6 +57,9 @@ class GeneticFeatureSelector:
         if random_state is not None:
             random.seed(random_state)
             np.random.seed(random_state)
+            torch.manual_seed(random_state)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed(random_state)
 
         # Results tracking
         self.best_fitness_per_gen = []
@@ -78,35 +88,90 @@ class GeneticFeatureSelector:
         return population
 
     def _evaluate_fitness(self, chromosome):
-            """Evaluate the fitness of a chromosome using cross-validation"""
-            # If no features selected, return very low fitness
-            if np.sum(chromosome) == 0:
-                return -np.inf
+        """Evaluate fitness using AlzheimerNet with cross-validation"""
+        # If no features selected, return very low fitness
+        if np.sum(chromosome) == 0:
+            return -np.inf
 
-            # Calculate feature penalty (fewer features is better)
-            n_selected_features = np.sum(chromosome)
-            feature_penalty = n_selected_features / self.n_features  # Normalize to [0, 1]
+        # Calculate feature penalty (fewer features is better)
+        n_selected_features = np.sum(chromosome)
+        feature_penalty = n_selected_features / self.n_features  # Normalize to [0, 1]
 
-            # Select features based on chromosome
-            X_selected = self.X.iloc[:, chromosome == 1] if isinstance(self.X, pd.DataFrame) else self.X[:, chromosome == 1]
+        # Select features based on chromosome
+        X_selected = self.X.iloc[:, chromosome == 1] if isinstance(self.X, pd.DataFrame) else self.X[:, chromosome == 1]
 
-            try:
-                # Evaluate using cross-validation
-                cv_scores = cross_val_score(self.estimator, X_selected, self.y,
-                                          cv=self.cv, scoring='accuracy', error_score=-1)
+        # Get input size based on selected features
+        input_size = X_selected.shape[1]
+        hidden_size = input_size * 2  # Hidden size is 2x input size as specified
 
-                # Calculate accuracy score
-                accuracy = np.mean(cv_scores)
+        try:
+            # Perform k-fold cross-validation manually for neural network
+            from sklearn.model_selection import StratifiedKFold
+            from part_a.model import AlzheimerNet, train_model, evaluate_model
+            from torch.utils.data import DataLoader, TensorDataset
+            import torch.nn as nn
 
-                # Combine accuracy and feature penalty (weight accuracy more)
-                # We want high accuracy (close to 1) and low feature count (low penalty)
-                fitness = 0.95 * accuracy - 0.05 * feature_penalty
+            # Initialize cross-validation
+            skf = StratifiedKFold(n_splits=self.cv, shuffle=True, random_state=self.random_state)
+            cv_scores = []
 
-                return fitness
-                # return np.mean(cv_scores)
-            except Exception as e:
-                print(f"Error in fitness evaluation: {str(e)}")
-                return -np.inf
+            for train_idx, val_idx in skf.split(X_selected, self.y):
+                # Split data
+                X_train, X_val = X_selected.iloc[train_idx], X_selected.iloc[val_idx]
+                y_train, y_val = self.y.iloc[train_idx], self.y.iloc[val_idx]
+
+                # Convert to PyTorch tensors
+                X_train_tensor = torch.FloatTensor(X_train.values).to(self.device)
+                X_val_tensor = torch.FloatTensor(X_val.values).to(self.device)
+                y_train_tensor = torch.FloatTensor(y_train.values.reshape(-1, 1)).to(self.device)
+                y_val_tensor = torch.FloatTensor(y_val.values.reshape(-1, 1)).to(self.device)
+
+                # Create datasets and dataloaders
+                train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+                val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
+
+                generator = torch.Generator()
+                generator.manual_seed(self.random_state)
+
+                train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, generator=generator)
+                val_loader = DataLoader(val_dataset, batch_size=self.batch_size)
+
+                # Create and train the model
+                model = AlzheimerNet(input_size, hidden_size, 'relu').to(self.device)
+                optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+                criterion = nn.BCELoss()
+
+                # Train with early stopping
+                _, _ = train_model(
+                    model,
+                    train_loader,
+                    val_loader,
+                    criterion,
+                    optimizer,
+                    epochs=50,  # Reduce epochs for efficiency during GA
+                    early_stop_patience=5
+                )
+
+                # Evaluate
+                metrics = evaluate_model(model, val_loader)
+                cv_scores.append(metrics['accuracy'])
+
+                # Clean up to prevent memory issues
+                del model, optimizer, criterion, X_train_tensor, X_val_tensor, y_train_tensor, y_val_tensor
+                torch.cuda.empty_cache()
+                gc.collect()
+
+            # Calculate average accuracy across folds
+            accuracy = np.mean(cv_scores)
+
+            # Calculate fitness combining accuracy and feature penalty
+            fitness = 0.95 * accuracy - 0.05 * feature_penalty
+
+            return fitness
+
+        except Exception as e:
+            print(f"Error in neural network fitness evaluation: {str(e)}")
+            return -np.inf
 
     def _tournament_selection(self, population, fitnesses, tournament_size=3):
         """Select an individual using tournament selection"""
