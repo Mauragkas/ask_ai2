@@ -203,7 +203,7 @@ class GeneticFeatureSelector:
             elif self.crossover_method == 'uniform':
                 return self._uniform_crossover(parent1, parent2)
             else:
-                return self._single_point_crossover(parent1, parent2)  # Default
+                return self._uniform_crossover(parent1, parent2)  # Default to uniform crossover
         else:
             return parent1.copy(), parent2.copy()
 

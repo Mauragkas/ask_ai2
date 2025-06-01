@@ -134,11 +134,14 @@ def run_ga_experiment(X, y, population_size, crossover_prob, mutation_prob, gene
 
     return results
 
-def run_single_experiment(config_and_data):
-    """Run a single GA experiment with given configuration"""
-    X, y, config, result_dir = config_and_data
+def run_single_experiment(config_and_data_with_gpu):
+    X, y, config, result_dir, gpu_id = config_and_data_with_gpu
 
     try:
+        # Set the GPU for this process
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
+        print(f"Running experiment on GPU {gpu_id}: {config}")
+
         return run_ga_experiment(
             X=X,
             y=y,
@@ -146,10 +149,9 @@ def run_single_experiment(config_and_data):
             crossover_prob=config['crossover_prob'],
             mutation_prob=config['mutation_prob'],
             generations=300,
-            # n_trials=10,
-            n_trials=3,
+            n_trials=1,
             result_dir=result_dir
         )
     except Exception as e:
-        print(f"Error during experiment with config {config}: {str(e)}")
+        print(f"Error during experiment with config {config} on GPU {gpu_id}: {str(e)}")
         return None

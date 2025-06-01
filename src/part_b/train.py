@@ -69,17 +69,19 @@ def train_selective_feature_model():
     # Set batch size
     batch_size = int(os.getenv('BATCH_SIZE', 256))
 
-    # Define the features you're interested in
-    # Note: These will need to match the column names in preprocessed data
+    # Define the features from the best configuration
+    # These are the selected features from the GA optimization
     selected_features_patterns = [
-        'EducationLevel',
-        'Depression',
+        'Age',
+        'Ethnicity',
+        'AlcoholConsumption',
+        'DiastolicBP',
         'MMSE',
         'FunctionalAssessment',
         'MemoryComplaints',
         'BehavioralProblems',
         'ADL',
-        'Confusion'
+        'DifficultyCompletingTasks'
     ]
 
     results = []
@@ -126,8 +128,7 @@ def train_selective_feature_model():
         # Get input size
         input_size = X_train_selected.shape[1]
 
-        # Set hidden layer size to 16 as requested
-        hidden_size = 16
+        hidden_size = input_size * 2
 
         print(f"Fold {fold} - Input size: {input_size}, Hidden size: {hidden_size}")
 
@@ -198,6 +199,9 @@ def train_selective_feature_model():
         f.write("## Model Configuration\n")
         f.write(f"- Hidden layer size: {hidden_size}\n")
         f.write("- Activation function: ReLU\n\n")
+        f.write("- GA Population Size: 20\n")
+        f.write("- GA Crossover Probability: 0.6\n")
+        f.write("- GA Mutation Probability: 0.01\n\n")
 
         f.write("## Selected Features\n")
         for pattern in selected_features_patterns:

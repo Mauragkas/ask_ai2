@@ -198,8 +198,8 @@ def plot_method_comparisons(all_results, result_dir):
 
         # Add labels for crossover methods
         for _, row in subset.iterrows():
-            plt.annotate(row['Crossover Method'],
-                         (row['Avg Fitness'], row['Avg Selected Features']),
+            plt.annotate(str(row['Crossover Method']),
+                         (float(row['Avg Fitness']), float(row['Avg Selected Features'])),
                          xytext=(5, 5), textcoords='offset points')
 
     plt.xlabel('Average Fitness')
@@ -230,8 +230,12 @@ def plot_method_comparisons(all_results, result_dir):
         f.write(f"- Average Selected Features: {best_methods['Avg Selected Features']:.2f}\n")
 
 def run_experiment_worker(args):
-    """Worker function for parallel processing"""
-    X, y, selection_method, crossover_method, n_trials, result_dir = args
+    """Worker function for parallel processing with GPU assignment"""
+    X, y, selection_method, crossover_method, n_trials, result_dir, gpu_id = args
+
+    # Set GPU for this process
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
+
     try:
         return run_method_experiment(
             X=X,
@@ -242,7 +246,7 @@ def run_experiment_worker(args):
             result_dir=result_dir
         )
     except Exception as e:
-        print(f"Error with {selection_method} selection and {crossover_method} crossover: {str(e)}")
+        print(f"Error with {selection_method} selection and {crossover_method} crossover on GPU {gpu_id}: {str(e)}")
         return None
 
 def run_all_method_experiments():
@@ -275,10 +279,12 @@ def run_all_method_experiments():
 
     # Prepare arguments for parallel processing
     experiment_args = []
-    for selection_method in selection_methods:
-        for crossover_method in crossover_methods:
+    for i, selection_method in enumerate(selection_methods):
+        for j, crossover_method in enumerate(crossover_methods):
+            # Alternate between GPU 0 and 1
+            gpu_id = (i * len(crossover_methods) + j) % 2
             experiment_args.append((
-                X, y, selection_method, crossover_method, 3, result_dir
+                X, y, selection_method, crossover_method, 3, result_dir, gpu_id
             ))
 
     print(f"Running {len(experiment_args)} experiments in parallel...")

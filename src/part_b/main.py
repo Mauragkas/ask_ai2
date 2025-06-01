@@ -40,15 +40,18 @@ def run_all_experiments():
     os.makedirs(result_dir, exist_ok=True)
 
     # Define parameter values to test
-    population_sizes = [20, 200]
+    population_sizes = [
+        20,
+        # 200
+    ]
 
     # Define valid combinations of crossover_prob and mutation_prob
     valid_combinations = [
-        (0.6, 0.0),
+        # (0.6, 0.0),
         (0.6, 0.01),
-        (0.6, 0.10),
-        (0.9, 0.01),
-        (0.1, 0.01)
+        # (0.6, 0.10),
+        # (0.9, 0.01),
+        # (0.1, 0.01)
     ]
 
     # Create configs with nested loops
@@ -61,8 +64,12 @@ def run_all_experiments():
                 'mutation_prob': mut_prob
             })
 
-    # Prepare arguments for each experiment
-    experiment_args = [(X, y, config, result_dir) for config in configs]
+    # Prepare arguments for each experiment with GPU assignment
+    experiment_args = []
+    for i, config in enumerate(configs):
+        # Alternate between GPU 0 and 1
+        gpu_id = i % 2
+        experiment_args.append((X, y, config, result_dir, gpu_id))
 
     # Run experiments in parallel
     with Pool() as pool:

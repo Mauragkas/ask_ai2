@@ -1,7 +1,0 @@
-Selection Method,Crossover Method,Avg Fitness,Avg Selected Features
-tournament,single_point,0.7924688454310548,7.333333333333333
-tournament,two_point,0.7938617108021176,7.666666666666667
-tournament,uniform,0.7949930092517302,6.0
-roulette,single_point,0.7831144766086626,12.0
-roulette,two_point,0.7838402518024612,12.666666666666666
-roulette,uniform,0.7817778929726603,12.666666666666666
