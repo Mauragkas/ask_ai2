@@ -8,17 +8,26 @@ from sklearn.pipeline import Pipeline
 import random
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import gc
 from dotenv import load_dotenv
 import json
+import torch
+from bitarray import bitarray
+from tqdm import tqdm
 
 load_dotenv()
+
+# Add global cache at the module level
+global_fitness_cache = {}
 
 class GeneticFeatureSelector:
     def __init__(self, X, y, estimator=None, cv=5, population_size=50, generations=300,
                  crossover_prob=0.8, mutation_prob=0.1, n_elite=2, random_state=None,
-                 selection_method='tournament', crossover_method='single_point'):
+                 selection_method='tournament', crossover_method='uniform',
+                 use_global_cache=True):  # Add parameter to control cache usage
         """Initialize the Genetic Algorithm for feature selection."""
         self.X = X
         self.y = y
@@ -29,11 +38,15 @@ class GeneticFeatureSelector:
         if estimator is not None:
             self.estimator = estimator
         else:
-            # Create a pipeline with scaling and increased max_iter
-            self.estimator = Pipeline([
-                ('scaler', StandardScaler()),
-                ('classifier', LogisticRegression(max_iter=10000, solver='liblinear'))
-            ])
+            # Import AlzheimerNet from part_a
+            from part_a.model import AlzheimerNet
+            # We'll create the neural network during evaluation since the input size will change
+            self.estimator = None  # Will be created per chromosome in _evaluate_fitness
+
+        # Store batch size and device for neural network training
+        self.batch_size = int(os.getenv('BATCH_SIZE', 256))
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.random_state = random_state
 
         self.cv = cv
         self.population_size = population_size
@@ -50,6 +63,9 @@ class GeneticFeatureSelector:
         if random_state is not None:
             random.seed(random_state)
             np.random.seed(random_state)
+            torch.manual_seed(random_state)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed(random_state)
 
         # Results tracking
         self.best_fitness_per_gen = []
@@ -65,6 +81,17 @@ class GeneticFeatureSelector:
         # For saving results
         self.config_name = f"pop{population_size}_cross{crossover_prob}_mut{mutation_prob}_sel{selection_method}_xover{crossover_method}"
 
+        # Cache configuration
+        self.use_global_cache = use_global_cache
+        if not use_global_cache:
+            self.fitness_cache = {}  # Local cache only if global cache is disabled
+        else:
+            self.fitness_cache = global_fitness_cache  # Use the global cache
+
+        # Cache statistics
+        self.cache_hits = 0
+        self.cache_misses = 0
+
     def _initialize_population(self):
         """Initialize random population of chromosomes (feature masks)"""
         population = []
@@ -78,35 +105,113 @@ class GeneticFeatureSelector:
         return population
 
     def _evaluate_fitness(self, chromosome):
-            """Evaluate the fitness of a chromosome using cross-validation"""
-            # If no features selected, return very low fitness
-            if np.sum(chromosome) == 0:
-                return -np.inf
+        """Evaluate fitness using AlzheimerNet with cross-validation"""
+        # Use more efficient key representation
+        key = bitarray(chromosome.tolist()).tobytes()
 
-            # Calculate feature penalty (fewer features is better)
-            n_selected_features = np.sum(chromosome)
-            feature_penalty = n_selected_features / self.n_features  # Normalize to [0, 1]
+        # Check cache
+        cache = global_fitness_cache if self.use_global_cache else self.fitness_cache
+        if key in cache:
+            self.cache_hits += 1
+            return cache[key]
 
-            # Select features based on chromosome
-            X_selected = self.X.iloc[:, chromosome == 1] if isinstance(self.X, pd.DataFrame) else self.X[:, chromosome == 1]
+        self.cache_misses += 1
 
-            try:
-                # Evaluate using cross-validation
-                cv_scores = cross_val_score(self.estimator, X_selected, self.y,
-                                          cv=self.cv, scoring='accuracy', error_score=-1)
+        # If no features selected, return very low fitness
+        if np.sum(chromosome) == 0:
+            cache[key] = -np.inf
+            return -np.inf
 
-                # Calculate accuracy score
-                accuracy = np.mean(cv_scores)
+        # Calculate feature penalty
+        n_selected_features = np.sum(chromosome)
+        feature_penalty = n_selected_features / self.n_features  # Normalize to [0, 1]
 
-                # Combine accuracy and feature penalty (weight accuracy more)
-                # We want high accuracy (close to 1) and low feature count (low penalty)
-                fitness = 0.95 * accuracy - 0.05 * feature_penalty
+        # Select features based on chromosome
+        X_selected = self.X.iloc[:, chromosome == 1] if isinstance(self.X, pd.DataFrame) else self.X[:, chromosome == 1]
 
-                return fitness
-                # return np.mean(cv_scores)
-            except Exception as e:
-                print(f"Error in fitness evaluation: {str(e)}")
-                return -np.inf
+        # Get input size based on selected features
+        input_size = X_selected.shape[1]
+        hidden_size = input_size * 2
+
+        try:
+            # Import necessary modules
+            from sklearn.model_selection import StratifiedKFold
+            from part_a.model import AlzheimerNet, train_model, evaluate_model
+            from torch.utils.data import DataLoader, TensorDataset
+            import torch.nn as nn
+            import io
+            from contextlib import redirect_stdout
+
+            # Initialize cross-validation
+            skf = StratifiedKFold(n_splits=self.cv, shuffle=True, random_state=self.random_state)
+            cv_scores = []
+
+            # Create a null output to redirect stdout
+            null_output = io.StringIO()
+
+            for train_idx, val_idx in skf.split(X_selected, self.y):
+                # Split data
+                X_train, X_val = X_selected.iloc[train_idx], X_selected.iloc[val_idx]
+                y_train, y_val = self.y.iloc[train_idx], self.y.iloc[val_idx]
+
+                # Convert to PyTorch tensors
+                X_train_tensor = torch.FloatTensor(X_train.values).to(self.device)
+                X_val_tensor = torch.FloatTensor(X_val.values).to(self.device)
+                y_train_tensor = torch.FloatTensor(y_train.values.reshape(-1, 1)).to(self.device)
+                y_val_tensor = torch.FloatTensor(y_val.values.reshape(-1, 1)).to(self.device)
+
+                # Create datasets and dataloaders
+                train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+                val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
+
+                generator = torch.Generator()
+                if self.random_state is not None:
+                    generator.manual_seed(int(self.random_state))
+
+                train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, generator=generator)
+                val_loader = DataLoader(val_dataset, batch_size=self.batch_size)
+
+                # Create and train the model
+                model = AlzheimerNet(input_size, hidden_size, 'relu').to(self.device)
+                optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+                criterion = nn.BCELoss()
+
+                # Train with early stopping - REDIRECT STDOUT to suppress messages
+                with redirect_stdout(null_output):
+                    _, _ = train_model(
+                        model,
+                        train_loader,
+                        val_loader,
+                        criterion,
+                        optimizer,
+                        epochs=50,
+                        early_stop_patience=5
+                    )
+
+                # Evaluate
+                metrics = evaluate_model(model, val_loader)
+                cv_scores.append(metrics['accuracy'])
+
+                # Clean up
+                del model, optimizer, criterion, X_train_tensor, X_val_tensor, y_train_tensor, y_val_tensor
+                torch.cuda.empty_cache()
+                gc.collect()
+
+            # Calculate average accuracy across folds
+            accuracy = np.mean(cv_scores)
+
+            # Calculate fitness combining accuracy and feature penalty
+            fitness = 0.95 * accuracy - 0.05 * feature_penalty
+
+            # Cache the result
+            cache[key] = fitness
+
+            return fitness
+
+        except Exception as e:
+            print(f"Error in neural network fitness evaluation: {str(e)}")
+            cache[key] = -np.inf
+            return -np.inf
 
     def _tournament_selection(self, population, fitnesses, tournament_size=3):
         """Select an individual using tournament selection"""
@@ -210,9 +315,18 @@ class GeneticFeatureSelector:
         generations_no_improvement = 0
         last_best_fitness = -np.inf
 
+        # Main generation loop
         for generation in range(self.generations):
-            # Evaluate fitness for each individual
-            fitnesses = [self._evaluate_fitness(chromosome) for chromosome in population]
+            # Create progress bar for this generation's fitness evaluations
+            gen_desc = f"Generation {generation+1}/{self.generations}"
+
+            # Evaluate fitness for each individual with progress bar
+            fitnesses = []
+            with tqdm(total=len(population), desc=gen_desc, leave=False, ncols=100) as pbar:
+                for chromosome in population:
+                    fitness = self._evaluate_fitness(chromosome)
+                    fitnesses.append(fitness)
+                    pbar.update(1)
 
             # Track best solution overall
             max_fitness_idx = np.argmax(fitnesses)
@@ -224,11 +338,12 @@ class GeneticFeatureSelector:
             self.best_fitness_per_gen.append(np.max(fitnesses))
             self.avg_fitness_per_gen.append(np.mean(fitnesses))
 
-            # Print progress only in debug mode
-            if __debug__:
-                n_selected = np.sum(self.best_chromosome) if self.best_chromosome is not None else 0
-                print(f"Generation {generation+1}/{self.generations}, Best fitness: {self.best_fitness_per_gen[-1]:.4f}, "
-                      f"Avg fitness: {self.avg_fitness_per_gen[-1]:.4f}, Features selected: {n_selected}/{self.n_features}")
+            # Print generation summary
+            n_selected = np.sum(self.best_chromosome) if self.best_chromosome is not None else 0
+            print(f"Generation {generation+1}/{self.generations} - "
+                  f"Best: {self.best_fitness_per_gen[-1]:.4f}, "
+                  f"Avg: {self.avg_fitness_per_gen[-1]:.4f}, "
+                  f"Features: {n_selected}/{self.n_features}")
 
             # Check early stopping conditions
             improvement = 0
@@ -245,8 +360,7 @@ class GeneticFeatureSelector:
 
             # Check if we should stop early
             if generations_no_improvement >= self.early_stopping_generations:
-                if __debug__:
-                    print(f"Early stopping at generation {generation+1} - no significant improvement for {self.early_stopping_generations} generations")
+                print(f"Early stopping at generation {generation+1} - no significant improvement for {self.early_stopping_generations} generations")
                 break
 
             # Check if we're at the last generation
@@ -296,6 +410,11 @@ class GeneticFeatureSelector:
         total_importance = np.sum(self.feature_importance)
         if total_importance > 0:
             self.feature_importance = self.feature_importance / total_importance
+
+        # Report cache size after training is complete
+        if __debug__:
+            cache_size = len(global_fitness_cache if self.use_global_cache else self.fitness_cache)
+            print(f"Final cache size: {cache_size}")
 
         return self
 

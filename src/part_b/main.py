@@ -40,7 +40,10 @@ def run_all_experiments():
     os.makedirs(result_dir, exist_ok=True)
 
     # Define parameter values to test
-    population_sizes = [20, 200]
+    population_sizes = [
+        20,
+        200
+    ]
 
     # Define valid combinations of crossover_prob and mutation_prob
     valid_combinations = [
@@ -61,8 +64,12 @@ def run_all_experiments():
                 'mutation_prob': mut_prob
             })
 
-    # Prepare arguments for each experiment
-    experiment_args = [(X, y, config, result_dir) for config in configs]
+    # Prepare arguments for each experiment with GPU assignment
+    experiment_args = []
+    for i, config in enumerate(configs):
+        # Alternate between GPU 0 and 1
+        gpu_id = i % 2
+        experiment_args.append((X, y, config, result_dir, gpu_id))
 
     # Run experiments in parallel
     with Pool() as pool:
@@ -204,21 +211,35 @@ def run_all_experiments():
     cross_prob = best_config['Crossover Prob']
     mut_prob = best_config['Mutation Prob']
 
-    # Add a section to display selected features in the summary report
-    with open(f"{result_dir}/selected_features_summary.txt", 'w') as f:
-        f.write("Selected Features from Best Configuration\n")
-        f.write("=======================================\n\n")
-        f.write(f"Best Configuration:\n")
-        f.write(f"- Population Size: {pop_size}\n")
-        f.write(f"- Crossover Probability: {cross_prob}\n")
-        f.write(f"- Mutation Probability: {mut_prob}\n\n")
+    # Load the selected features from the best configuration's experiment summary
+    best_config_dir = f"{result_dir}/pop{int(pop_size)}_cross{cross_prob}_mut{mut_prob}"
+    summary_file = f"{best_config_dir}/experiment_summary.json"
 
-        # Load the selected features from individual trials
-        from genetic_algorithm import GeneticFeatureSelector
+    try:
+        with open(summary_file, 'r') as f:
+            best_config_results = json.load(f)
 
-        # Run GA to get selected features directly
-        try:
-            # Re-run best configuration once to get features
+        # Check if selected features are available in the results
+        if 'selected_features' in best_config_results.get('results', {}):
+            selected_features = best_config_results['results']['selected_features']
+
+            with open(f"{result_dir}/selected_features_summary.txt", 'w') as f:
+                f.write("Selected Features from Best Configuration\n")
+                f.write("=======================================\n\n")
+                f.write(f"Best Configuration:\n")
+                f.write(f"- Population Size: {pop_size}\n")
+                f.write(f"- Crossover Probability: {cross_prob}\n")
+                f.write(f"- Mutation Probability: {mut_prob}\n\n")
+
+                f.write("Selected Features:\n")
+                for i, feature in enumerate(selected_features):
+                    f.write(f"{i+1}. {feature}\n")
+
+            print(f"Selected features retrieved from saved results and written to {result_dir}/selected_features_summary.txt")
+        else:
+            print("Selected features not found in saved results. Running GA once more to get them.")
+            # The original code to run GA again
+            from genetic_algorithm import GeneticFeatureSelector
             ga = GeneticFeatureSelector(
                 X=X,
                 y=y,
@@ -230,15 +251,49 @@ def run_all_experiments():
             ga.fit()
             selected_features = ga.get_selected_features()
 
+            with open(f"{result_dir}/selected_features_summary.txt", 'w') as f:
+                f.write("Selected Features from Best Configuration\n")
+                f.write("=======================================\n\n")
+                f.write(f"Best Configuration:\n")
+                f.write(f"- Population Size: {pop_size}\n")
+                f.write(f"- Crossover Probability: {cross_prob}\n")
+                f.write(f"- Mutation Probability: {mut_prob}\n\n")
+
+                f.write("Selected Features:\n")
+                for i, feature in enumerate(selected_features):
+                    f.write(f"{i+1}. {feature}\n")
+
+            print(f"Selected features saved to {result_dir}/selected_features_summary.txt")
+
+    except Exception as e:
+        print(f"Error retrieving selected features: {str(e)}")
+        print("Falling back to running GA again.")
+        # Original code to run GA again
+        from genetic_algorithm import GeneticFeatureSelector
+        ga = GeneticFeatureSelector(
+            X=X,
+            y=y,
+            population_size=int(best_config['Population Size']),
+            crossover_prob=best_config['Crossover Prob'],
+            mutation_prob=best_config['Mutation Prob'],
+            random_state=int(os.getenv('SEED', 420))
+        )
+        ga.fit()
+        selected_features = ga.get_selected_features()
+
+        with open(f"{result_dir}/selected_features_summary.txt", 'w') as f:
+            f.write("Selected Features from Best Configuration\n")
+            f.write("=======================================\n\n")
+            f.write(f"Best Configuration:\n")
+            f.write(f"- Population Size: {pop_size}\n")
+            f.write(f"- Crossover Probability: {cross_prob}\n")
+            f.write(f"- Mutation Probability: {mut_prob}\n\n")
+
             f.write("Selected Features:\n")
             for i, feature in enumerate(selected_features):
                 f.write(f"{i+1}. {feature}\n")
 
-            print(f"Selected features saved to {result_dir}/selected_features_summary.txt")
-
-        except Exception as e:
-            f.write(f"Error getting selected features: {str(e)}\n")
-            f.write("To get selected features, try running the GA separately with the best configuration.\n")
+        print(f"Selected features saved to {result_dir}/selected_features_summary.txt")
 
 if __name__ == "__main__":
     try:

@@ -4,19 +4,15 @@
     "crossover_prob": 0.6,
     "mutation_prob": 0.01,
     "generations": 300,
-    "n_trials": 3
+    "n_trials": 1
   },
   "results": {
-    "avg_best_fitness": 0.7860121869409661,
-    "avg_features_selected": 10.333333333333334,
+    "avg_best_fitness": 0.7837571590231476,
+    "avg_features_selected": 13.0,
     "all_best_fitness": [
-      0.7853547257006559,
-      0.7906890280262374,
-      0.7819928070960048
+      0.7837571590231476
     ],
     "all_selected_features_count": [
-      10,
-      8,
       13
     ]
   }
