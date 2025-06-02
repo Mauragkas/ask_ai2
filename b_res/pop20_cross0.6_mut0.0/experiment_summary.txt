@@ -6,13 +6,11 @@ Parameters:
 - Crossover Probability: 0.6
 - Mutation Probability: 0.0
 - Maximum Generations: 300
-- Number of Trials: 3
+- Number of Trials: 1
 
-Results (averaged over 3 trials):
-- Average Best Fitness: 0.7693
-- Average Number of Selected Features: 14.33
+Results (averaged over 1 trials):
+- Average Best Fitness: 0.7840
+- Average Number of Selected Features: 12.00
 
 Individual Trial Results:
-Trial 1: Fitness=0.7524, Selected Features=13
-Trial 2: Fitness=0.7793, Selected Features=15
-Trial 3: Fitness=0.7762, Selected Features=15
+Trial 1: Fitness=0.7840, Selected Features=12

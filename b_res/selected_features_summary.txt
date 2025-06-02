@@ -3,15 +3,13 @@ Selected Features from Best Configuration
 
 Best Configuration:
 - Population Size: 200
-- Crossover Probability: 0.9
-- Mutation Probability: 0.01
+- Crossover Probability: 0.6
+- Mutation Probability: 0.0
 
 Selected Features:
-1. EducationLevel
-2. Depression
-3. MMSE
-4. FunctionalAssessment
-5. MemoryComplaints
-6. BehavioralProblems
-7. ADL
-8. Confusion
+1. Depression
+2. MMSE
+3. FunctionalAssessment
+4. MemoryComplaints
+5. BehavioralProblems
+6. ADL
