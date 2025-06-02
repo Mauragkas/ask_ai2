@@ -109,7 +109,8 @@ def run_ga_experiment(X, y, population_size, crossover_prob, mutation_prob, gene
             'avg_best_fitness': float(avg_best_fitness),
             'avg_features_selected': float(avg_features_selected),
             'all_best_fitness': [float(f) for f in all_best_fitness],
-            'all_selected_features_count': all_selected_features_count
+            'all_selected_features_count': all_selected_features_count,
+            'selected_features': all_selected_features[-1]  # Save the last trial's selected features
         }
     }
 
