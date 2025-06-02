@@ -1,0 +1,25 @@
+{
+  "parameters": {
+    "selection_method": "tournament",
+    "crossover_method": "two_point",
+    "population_size": 200,
+    "crossover_prob": 0.9,
+    "mutation_prob": 0.01,
+    "generations": 300,
+    "n_trials": 3
+  },
+  "results": {
+    "avg_best_fitness": 0.7938617108021176,
+    "avg_features_selected": 7.666666666666667,
+    "all_best_fitness": [
+      0.7939880231202905,
+      0.7924564698867024,
+      0.7951406393993603
+    ],
+    "all_selected_features_count": [
+      9,
+      8,
+      6
+    ]
+  }
+}

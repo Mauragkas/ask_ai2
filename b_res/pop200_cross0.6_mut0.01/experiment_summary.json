@@ -1,0 +1,23 @@
+{
+  "parameters": {
+    "population_size": 200,
+    "crossover_prob": 0.6,
+    "mutation_prob": 0.01,
+    "generations": 300,
+    "n_trials": 3
+  },
+  "results": {
+    "avg_best_fitness": 0.7916304039952294,
+    "avg_features_selected": 9.0,
+    "all_best_fitness": [
+      0.7940189698867023,
+      0.7904211626551741,
+      0.7904510794438119
+    ],
+    "all_selected_features_count": [
+      7,
+      11,
+      9
+    ]
+  }
+}

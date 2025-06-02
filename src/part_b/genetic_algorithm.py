@@ -124,7 +124,7 @@ class GeneticFeatureSelector:
 
         # Calculate feature penalty
         n_selected_features = np.sum(chromosome)
-        feature_penalty = (n_selected_features / self.n_features)**2
+        feature_penalty = n_selected_features / self.n_features  # Normalize to [0, 1]
 
         # Select features based on chromosome
         X_selected = self.X.iloc[:, chromosome == 1] if isinstance(self.X, pd.DataFrame) else self.X[:, chromosome == 1]
@@ -201,7 +201,7 @@ class GeneticFeatureSelector:
             accuracy = np.mean(cv_scores)
 
             # Calculate fitness combining accuracy and feature penalty
-            fitness = 0.7 * accuracy - 0.3 * feature_penalty
+            fitness = 0.95 * accuracy - 0.05 * feature_penalty
 
             # Cache the result
             cache[key] = fitness
