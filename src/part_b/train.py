@@ -195,9 +195,6 @@ def train_selective_feature_model():
         f.write("## Model Configuration\n")
         f.write(f"- Hidden layer size: {hidden_size}\n")
         f.write("- Activation function: ReLU\n\n")
-        f.write("- GA Population Size: 20\n")
-        f.write("- GA Crossover Probability: 0.6\n")
-        f.write("- GA Mutation Probability: 0.01\n\n")
 
         f.write("## Selected Features\n")
         for pattern in selected_features_patterns:

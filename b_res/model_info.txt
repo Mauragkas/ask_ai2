@@ -4,10 +4,6 @@
 - Hidden layer size: 12
 - Activation function: ReLU
 
-- GA Population Size: 20
-- GA Crossover Probability: 0.6
-- GA Mutation Probability: 0.01
-
 ## Selected Features
 - Depression
 - MMSE
