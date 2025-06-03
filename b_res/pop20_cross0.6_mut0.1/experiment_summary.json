@@ -7,24 +7,23 @@
     "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.7870435380188286,
-    "avg_features_selected": 10.333333333333334,
+    "avg_best_fitness": 0.7871805092517302,
+    "avg_features_selected": 11.0,
+    "avg_generations_needed": 10.0,
     "all_best_fitness": [
-      0.7900102489564699,
-      0.7886846675611211,
-      0.7824356975388951
+      0.7895683884913537,
+      0.7877699998644766,
+      0.7842031393993604
     ],
     "all_selected_features_count": [
       9,
-      9,
+      11,
       13
     ],
     "selected_features": [
-      "Ethnicity",
-      "EducationLevel",
-      "CardiovascularDisease",
-      "Hypertension",
+      "PhysicalActivity",
       "CholesterolLDL",
+      "CholesterolHDL",
       "CholesterolTriglycerides",
       "MMSE",
       "FunctionalAssessment",
@@ -32,7 +31,9 @@
       "BehavioralProblems",
       "ADL",
       "Confusion",
-      "Disorientation"
+      "Disorientation",
+      "PersonalityChanges",
+      "Forgetfulness"
     ]
   }
 }

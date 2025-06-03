@@ -9,10 +9,11 @@ Parameters:
 - Number of Trials: 3
 
 Results (averaged over 3 trials):
-- Average Best Fitness: 0.7897
-- Average Number of Selected Features: 9.00
+- Average Best Fitness: 0.7871
+- Average Number of Selected Features: 9.67
+- Average Generations Needed: 9.67
 
 Individual Trial Results:
-Trial 1: Fitness=0.7902, Selected Features=10
-Trial 2: Fitness=0.7920, Selected Features=8
-Trial 3: Fitness=0.7869, Selected Features=9
+Trial 1: Fitness=0.7887, Selected Features=9, Generations Needed=10
+Trial 2: Fitness=0.7858, Selected Features=10, Generations Needed=10
+Trial 3: Fitness=0.7867, Selected Features=10, Generations Needed=9

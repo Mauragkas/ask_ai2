@@ -7,29 +7,29 @@
     "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.7878603182992717,
+    "avg_best_fitness": 0.7875647146780868,
     "avg_features_selected": 10.0,
+    "avg_generations_needed": 10.0,
     "all_best_fitness": [
-      0.7862415365642109,
-      0.7871221675611211,
-      0.7902172507724833
+      0.7873549662546756,
+      0.7853227489564698,
+      0.790016428823115
     ],
     "all_selected_features_count": [
-      10,
-      10,
-      10
+      9,
+      12,
+      9
     ],
     "selected_features": [
       "Age",
       "EducationLevel",
-      "FamilyHistoryAlzheimers",
-      "CardiovascularDisease",
+      "AlcoholConsumption",
+      "DiastolicBP",
       "MMSE",
       "FunctionalAssessment",
       "MemoryComplaints",
       "BehavioralProblems",
-      "ADL",
-      "PersonalityChanges"
+      "ADL"
     ]
   }
 }

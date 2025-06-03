@@ -7,34 +7,35 @@
     "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.7814833193292495,
-    "avg_features_selected": 12.666666666666666,
+    "avg_best_fitness": 0.7692965827776875,
+    "avg_features_selected": 14.333333333333334,
+    "avg_generations_needed": 4.0,
     "all_best_fitness": [
-      0.783998197538895,
-      0.7851188370737788,
-      0.7753329233750745
+      0.7523706463110534,
+      0.7793076076055726,
+      0.7762114944164363
     ],
     "all_selected_features_count": [
-      12,
-      11,
+      13,
+      15,
       15
     ],
     "selected_features": [
+      "Age",
       "EducationLevel",
       "BMI",
-      "DietQuality",
-      "FamilyHistoryAlzheimers",
-      "Depression",
-      "Hypertension",
+      "AlcoholConsumption",
+      "SleepQuality",
+      "Diabetes",
+      "SystolicBP",
       "DiastolicBP",
-      "CholesterolLDL",
       "CholesterolHDL",
       "MMSE",
       "FunctionalAssessment",
       "MemoryComplaints",
       "BehavioralProblems",
       "ADL",
-      "Disorientation"
+      "Confusion"
     ]
   }
 }

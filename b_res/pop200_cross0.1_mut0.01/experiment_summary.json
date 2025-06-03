@@ -7,28 +7,30 @@
     "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.7897160186389837,
-    "avg_features_selected": 9.0,
+    "avg_best_fitness": 0.7870548835854069,
+    "avg_features_selected": 9.666666666666666,
+    "avg_generations_needed": 9.666666666666666,
     "all_best_fitness": [
-      0.7902162207947092,
-      0.7920156393993603,
-      0.7869161957228819
+      0.7886867275166695,
+      0.7857965861657722,
+      0.7866813370737789
     ],
     "all_selected_features_count": [
+      9,
       10,
-      8,
-      9
+      10
     ],
     "selected_features": [
+      "Gender",
+      "Smoking",
       "CardiovascularDisease",
       "HeadInjury",
+      "CholesterolTriglycerides",
       "MMSE",
       "FunctionalAssessment",
       "MemoryComplaints",
       "BehavioralProblems",
-      "ADL",
-      "Disorientation",
-      "PersonalityChanges"
+      "ADL"
     ]
   }
 }

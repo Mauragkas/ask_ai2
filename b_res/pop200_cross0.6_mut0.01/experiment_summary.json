@@ -7,28 +7,29 @@
     "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.793794083500479,
-    "avg_features_selected": 7.333333333333333,
+    "avg_best_fitness": 0.7916304039952294,
+    "avg_features_selected": 9.0,
+    "avg_generations_needed": 9.666666666666666,
     "all_best_fitness": [
-      0.7942569184691279,
-      0.7940210298422506,
-      0.7931043021900581
+      0.7940189698867023,
+      0.7904211626551741,
+      0.7904510794438119
     ],
     "all_selected_features_count": [
-      6,
       7,
+      11,
       9
     ],
     "selected_features": [
-      "Gender",
-      "AlcoholConsumption",
-      "HeadInjury",
-      "CholesterolHDL",
+      "Age",
+      "Ethnicity",
+      "FamilyHistoryAlzheimers",
       "MMSE",
       "FunctionalAssessment",
       "MemoryComplaints",
       "BehavioralProblems",
-      "ADL"
+      "ADL",
+      "PersonalityChanges"
     ]
   }
 }

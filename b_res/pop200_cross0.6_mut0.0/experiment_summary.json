@@ -7,22 +7,22 @@
     "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.794392859724255,
-    "avg_features_selected": 6.666666666666667,
+    "avg_best_fitness": 0.7907590586093493,
+    "avg_features_selected": 8.333333333333334,
+    "avg_generations_needed": 9.333333333333334,
     "all_best_fitness": [
-      0.795139609421586,
-      0.795139609421586,
-      0.792899360329593
+      0.7900112789342442,
+      0.7900123089120181,
+      0.7922535879817855
     ],
     "all_selected_features_count": [
-      6,
-      6,
-      8
+      9,
+      9,
+      7
     ],
     "selected_features": [
-      "PhysicalActivity",
-      "DietQuality",
-      "HeadInjury",
+      "FamilyHistoryAlzheimers",
+      "CholesterolTriglycerides",
       "MMSE",
       "FunctionalAssessment",
       "MemoryComplaints",

@@ -7,8 +7,9 @@ Best Configuration:
 - Mutation Probability: 0.01
 
 Selected Features:
-1. MMSE
-2. FunctionalAssessment
-3. MemoryComplaints
-4. BehavioralProblems
-5. ADL
+1. CholesterolTriglycerides
+2. MMSE
+3. FunctionalAssessment
+4. MemoryComplaints
+5. BehavioralProblems
+6. ADL

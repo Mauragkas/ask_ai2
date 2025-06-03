@@ -315,6 +315,9 @@ class GeneticFeatureSelector:
         generations_no_improvement = 0
         last_best_fitness = -np.inf
 
+        # Track when best solution was found
+        best_gen_found = 0
+
         # Main generation loop
         for generation in range(self.generations):
             # Create progress bar for this generation's fitness evaluations
@@ -333,6 +336,7 @@ class GeneticFeatureSelector:
             if fitnesses[max_fitness_idx] > self.best_fitness:
                 self.best_fitness = fitnesses[max_fitness_idx]
                 self.best_chromosome = population[max_fitness_idx].copy()
+                best_gen_found = generation + 1  # Record the generation where best solution was found
 
             # Track statistics
             self.best_fitness_per_gen.append(np.max(fitnesses))
@@ -405,6 +409,9 @@ class GeneticFeatureSelector:
             for chromosome, fitness in zip(population, fitnesses):
                 if fitness > 0:  # Only consider positive fitness
                     self.feature_importance += chromosome * fitness
+
+        # Store the generation where the best solution was found
+        self.best_gen_found = best_gen_found
 
         # Normalize feature importance
         total_importance = np.sum(self.feature_importance)

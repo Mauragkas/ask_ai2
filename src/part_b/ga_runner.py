@@ -29,6 +29,7 @@ def run_ga_experiment(X, y, population_size, crossover_prob, mutation_prob, gene
     all_selected_features_count = []
     all_selected_features = []
     all_evolution_curves = []
+    all_generations_needed = []  # Track generations needed for each trial
 
     for trial in range(n_trials):
         if __debug__:
@@ -63,13 +64,14 @@ def run_ga_experiment(X, y, population_size, crossover_prob, mutation_prob, gene
                 'best': ga_selector.best_fitness_per_gen,
                 'avg': ga_selector.avg_fitness_per_gen
             })
+            all_generations_needed.append(ga_selector.best_gen_found)  # Store when best solution was found
 
             # Save individual trial results
             plot_fitness_evolution(ga_selector, save_path=f"{experiment_dir}/fitness_evolution_trial{trial+1}.png")
 
             # Print trial results only in debug mode
             if __debug__:
-                print(f"Trial {trial+1} complete - Best fitness: {ga_selector.best_fitness:.4f}, Selected {len(selected_features)} features")
+                print(f"Trial {trial+1} complete - Best fitness: {ga_selector.best_fitness:.4f}, Selected {len(selected_features)} features, Found at generation: {ga_selector.best_gen_found}")
 
         except Exception as e:
             print(f"Error in trial {trial+1}: {str(e)}")
@@ -77,6 +79,7 @@ def run_ga_experiment(X, y, population_size, crossover_prob, mutation_prob, gene
     # Calculate average performance
     avg_best_fitness = np.mean(all_best_fitness)
     avg_features_selected = np.mean(all_selected_features_count)
+    avg_generations_needed = np.mean(all_generations_needed)  # Calculate average generations needed
 
     # Find minimum length of evolution curves
     min_len = min(len(curve['best']) for curve in all_evolution_curves)
@@ -108,6 +111,7 @@ def run_ga_experiment(X, y, population_size, crossover_prob, mutation_prob, gene
         'results': {
             'avg_best_fitness': float(avg_best_fitness),
             'avg_features_selected': float(avg_features_selected),
+            'avg_generations_needed': float(avg_generations_needed),  # Add this to results
             'all_best_fitness': [float(f) for f in all_best_fitness],
             'all_selected_features_count': all_selected_features_count,
             'selected_features': all_selected_features[-1]  # Save the last trial's selected features
@@ -128,10 +132,11 @@ def run_ga_experiment(X, y, population_size, crossover_prob, mutation_prob, gene
         f.write(f"- Number of Trials: {n_trials}\n\n")
         f.write(f"Results (averaged over {n_trials} trials):\n")
         f.write(f"- Average Best Fitness: {avg_best_fitness:.4f}\n")
-        f.write(f"- Average Number of Selected Features: {avg_features_selected:.2f}\n\n")
+        f.write(f"- Average Number of Selected Features: {avg_features_selected:.2f}\n")
+        f.write(f"- Average Generations Needed: {avg_generations_needed:.2f}\n\n")  # Add this line
         f.write(f"Individual Trial Results:\n")
-        for i, (fitness, n_features) in enumerate(zip(all_best_fitness, all_selected_features_count)):
-            f.write(f"Trial {i+1}: Fitness={fitness:.4f}, Selected Features={n_features}\n")
+        for i, (fitness, n_features, gens) in enumerate(zip(all_best_fitness, all_selected_features_count, all_generations_needed)):
+            f.write(f"Trial {i+1}: Fitness={fitness:.4f}, Selected Features={n_features}, Generations Needed={gens}\n")
 
     return results
 
@@ -150,7 +155,7 @@ def run_single_experiment(config_and_data_with_gpu):
             crossover_prob=config['crossover_prob'],
             mutation_prob=config['mutation_prob'],
             generations=300,
-            n_trials=1,
+            n_trials=3,
             result_dir=result_dir
         )
     except Exception as e:
