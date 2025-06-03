@@ -4,16 +4,30 @@
     "crossover_prob": 0.6,
     "mutation_prob": 0.0,
     "generations": 300,
-    "n_trials": 1
+    "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.795139609421586,
-    "avg_features_selected": 6.0,
+    "avg_best_fitness": 0.794392859724255,
+    "avg_features_selected": 6.666666666666667,
     "all_best_fitness": [
-      0.795139609421586
+      0.795139609421586,
+      0.795139609421586,
+      0.792899360329593
     ],
     "all_selected_features_count": [
-      6
+      6,
+      6,
+      8
+    ],
+    "selected_features": [
+      "PhysicalActivity",
+      "DietQuality",
+      "HeadInjury",
+      "MMSE",
+      "FunctionalAssessment",
+      "MemoryComplaints",
+      "BehavioralProblems",
+      "ADL"
     ]
   }
 }

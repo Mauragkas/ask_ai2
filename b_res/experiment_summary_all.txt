@@ -4,20 +4,20 @@ GA Feature Selection - All Experiments Summary
 Parameter Configurations and Results:
 
  Population Size  Crossover Prob  Mutation Prob  Avg Fitness  Avg Selected Features
-              20             0.6           0.00     0.783998                   12.0
-              20             0.6           0.01     0.783757                   13.0
-              20             0.6           0.10     0.790010                    9.0
-              20             0.9           0.01     0.791368                    7.0
-              20             0.1           0.01     0.786239                   10.0
-             200             0.6           0.00     0.795140                    6.0
-             200             0.6           0.01     0.794257                    6.0
-             200             0.6           0.10     0.786242                   10.0
-             200             0.9           0.01     0.794904                    7.0
-             200             0.1           0.01     0.790216                   10.0
+              20             0.6           0.00     0.781483              12.666667
+              20             0.6           0.01     0.784596              11.333333
+              20             0.6           0.10     0.787044              10.333333
+              20             0.9           0.01     0.790542               8.000000
+              20             0.1           0.01     0.781855              12.333333
+             200             0.6           0.00     0.794393               6.666667
+             200             0.6           0.01     0.793794               7.333333
+             200             0.6           0.10     0.787860              10.000000
+             200             0.9           0.01     0.794993               6.000000
+             200             0.1           0.01     0.789716               9.000000
 
 Best Configuration:
 - Population Size: 200.0
-- Crossover Probability: 0.6
-- Mutation Probability: 0.0
-- Average Fitness: 0.7951
+- Crossover Probability: 0.9
+- Mutation Probability: 0.01
+- Average Fitness: 0.7950
 - Average Selected Features: 6.00

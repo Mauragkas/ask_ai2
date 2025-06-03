@@ -4,16 +4,27 @@
     "crossover_prob": 0.9,
     "mutation_prob": 0.01,
     "generations": 300,
-    "n_trials": 1
+    "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.7949037207947092,
-    "avg_features_selected": 7.0,
+    "avg_best_fitness": 0.7949930092517302,
+    "avg_features_selected": 6.0,
     "all_best_fitness": [
-      0.7949037207947092
+      0.7949037207947092,
+      0.7951406393993603,
+      0.794934667561121
     ],
     "all_selected_features_count": [
-      7
+      7,
+      6,
+      5
+    ],
+    "selected_features": [
+      "MMSE",
+      "FunctionalAssessment",
+      "MemoryComplaints",
+      "BehavioralProblems",
+      "ADL"
     ]
   }
 }

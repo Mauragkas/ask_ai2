@@ -72,7 +72,6 @@ def train_selective_feature_model():
     # Define the features from the best configuration
     # These are the selected features from the GA optimization
     selected_features_patterns = [
-        'Depression',
         'MMSE',
         'FunctionalAssessment',
         'MemoryComplaints',

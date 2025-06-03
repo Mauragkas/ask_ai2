@@ -4,16 +4,31 @@
     "crossover_prob": 0.6,
     "mutation_prob": 0.01,
     "generations": 300,
-    "n_trials": 1
+    "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.7942569184691279,
-    "avg_features_selected": 6.0,
+    "avg_best_fitness": 0.793794083500479,
+    "avg_features_selected": 7.333333333333333,
     "all_best_fitness": [
-      0.7942569184691279
+      0.7942569184691279,
+      0.7940210298422506,
+      0.7931043021900581
     ],
     "all_selected_features_count": [
-      6
+      6,
+      7,
+      9
+    ],
+    "selected_features": [
+      "Gender",
+      "AlcoholConsumption",
+      "HeadInjury",
+      "CholesterolHDL",
+      "MMSE",
+      "FunctionalAssessment",
+      "MemoryComplaints",
+      "BehavioralProblems",
+      "ADL"
     ]
   }
 }

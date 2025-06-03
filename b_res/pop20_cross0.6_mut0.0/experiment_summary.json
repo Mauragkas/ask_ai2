@@ -4,16 +4,37 @@
     "crossover_prob": 0.6,
     "mutation_prob": 0.0,
     "generations": 300,
-    "n_trials": 1
+    "n_trials": 3
   },
   "results": {
-    "avg_best_fitness": 0.783998197538895,
-    "avg_features_selected": 12.0,
+    "avg_best_fitness": 0.7814833193292495,
+    "avg_features_selected": 12.666666666666666,
     "all_best_fitness": [
-      0.783998197538895
+      0.783998197538895,
+      0.7851188370737788,
+      0.7753329233750745
     ],
     "all_selected_features_count": [
-      12
+      12,
+      11,
+      15
+    ],
+    "selected_features": [
+      "EducationLevel",
+      "BMI",
+      "DietQuality",
+      "FamilyHistoryAlzheimers",
+      "Depression",
+      "Hypertension",
+      "DiastolicBP",
+      "CholesterolLDL",
+      "CholesterolHDL",
+      "MMSE",
+      "FunctionalAssessment",
+      "MemoryComplaints",
+      "BehavioralProblems",
+      "ADL",
+      "Disorientation"
     ]
   }
 }
