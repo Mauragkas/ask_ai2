@@ -1,0 +1,10 @@
+# GA Model Trained on Full Dataset
+
+- Selected features: ['CholesterolTriglycerides', 'MMSE', 'FunctionalAssessment', 'MemoryComplaints', 'BehavioralProblems', 'ADL']
+- Input size: 6
+- Hidden size: 12
+
+## Performance Metrics
+- ce_loss: 13.9535
+- mse: 0.1395
+- accuracy: 0.8605

@@ -1,0 +1,33 @@
+{
+    "metrics": {
+        "ce_loss": 13.95348834991455,
+        "mse": 0.13953489065170288,
+        "accuracy": 0.8604651162790697
+    },
+    "input_size": 6,
+    "hidden_size": 12,
+    "selected_features": [
+        "CholesterolTriglycerides",
+        "MMSE",
+        "FunctionalAssessment",
+        "MemoryComplaints",
+        "BehavioralProblems",
+        "ADL"
+    ],
+    "selected_columns": [
+        "CholesterolTriglycerides",
+        "MMSE",
+        "FunctionalAssessment",
+        "MemoryComplaints",
+        "BehavioralProblems",
+        "ADL"
+    ],
+    "feature_importance": {
+        "CholesterolTriglycerides": 0.22035610675811768,
+        "MMSE": 0.4248121678829193,
+        "FunctionalAssessment": 0.4182112216949463,
+        "MemoryComplaints": 0.3126613199710846,
+        "BehavioralProblems": 0.2875947654247284,
+        "ADL": 0.3148552477359772
+    }
+}
